@@ -16,6 +16,9 @@ FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 # 2) Set some environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8
+ENV USE_CUDA=1                   # For adding GPU capability to pytorch
+ENV USE_CUDNN=1                  # For better CUDA performance
+ENV USE_MKLDNN=1                 # For faster CPU operations
 
 # 3) Install system packages
 #    - build-essential, ninja-build, git, wget, etc.
