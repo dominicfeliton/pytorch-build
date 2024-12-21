@@ -11,7 +11,7 @@
 # *****************************************************************************
 
 # 1) Start from the official CUDA 12.1-devel image on Ubuntu 22.04
-FROM nvidia/cuda:12.1-devel-ubuntu22.04
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
 # 2) Set some environment variables
 ENV DEBIAN_FRONTEND=noninteractive
