@@ -46,15 +46,18 @@ ENV PATH="${CONDA_DIR}/bin:${PATH}"
 #
 #    If the URL or filename changes, update it below.
 ARG CUDNN_VERSION=8.9.7.29
-ARG CUDNN_FILE="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive.tar.xz"
+ARG CUDNN_NAME="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive"
+ARG CUDNN_FILE="${CUDNN_NAME}.tar.xz"
 ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/${CUDNN_FILE}"
 
 RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
     wget -q "${CUDNN_URL}" -O "/tmp/${CUDNN_FILE}" && \
-    tar --one-top-level=/tmp/cuda -xf "/tmp/${CUDNN_FILE}" -C /tmp && \
-    cp -P /tmp/cuda/include/* /usr/local/cuda/include/ && \
-    cp -P /tmp/cuda/lib64/* /usr/local/cuda/lib64/ && \
-    rm -rf /tmp/cuda /tmp/${CUDNN_FILE}
+    tar -xf "/tmp/${CUDNN_FILE}" -C /tmp && \
+    mkdir -p /usr/local/cuda/include/ && \
+    mkdir -p /usr/local/cuda/lib64/ && \
+    cp -P /tmp/${CUDNN_NAME}/include/* /usr/local/cuda/include/ && \
+    cp -P /tmp/${CUDNN_NAME}/lib64/* /usr/local/cuda/lib64/ && \
+    rm -rf /tmp/${CUDNN_NAME} /tmp/${CUDNN_FILE}
 
 # 6) Ensure dynamic linker can find libraries
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
