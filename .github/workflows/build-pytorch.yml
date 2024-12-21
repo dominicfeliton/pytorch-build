@@ -1,4 +1,4 @@
-name: Build PyTorch from Source
+name: Build PyTorch from Source with Docker
 
 on:
   push:
@@ -8,23 +8,36 @@ on:
 
 jobs:
   build-pytorch:
-    runs-on: ubuntu-22.04
+    # GitHub-hosted runner with Docker installed
+    runs-on: ubuntu-latest
+
     steps:
+      # 1) Check out this repo so we have access to the Dockerfile (and any needed scripts).
       - uses: actions/checkout@v4
 
-      - name: Set up dependencies
-        run: sudo apt-get update && sudo apt-get install -y wget git ninja-build
-
-      - name: Run custom build script
+      # 2) Build the Docker image
+      #    - We assume the Dockerfile is in the repository root.
+      #    - Tag the image as "my-pytorch-builder:latest" (or anything you like).
+      - name: Build Docker Image
         run: |
-          chmod +x build_pytorch.sh
-          ./build_pytorch.sh \
-            --cuda-version "12.1" \
-            --cudnn-version "8.9.7.29" \
-            --pytorch-version "v2.3.1"
-        
-      - name: Upload wheel artifact
+          docker build -t my-pytorch-builder:latest .
+
+      # 3) Create a dist/ folder on the runner (just to be safe).
+      - name: Prepare dist folder
+        run: mkdir -p dist
+
+      # 4) Run the Docker container.
+      #    - We mount the runner’s "dist" folder into the container’s "/wheelhouse".
+      #    - The Dockerfile’s CMD or final step places the .whl in /wheelhouse.
+      - name: Run Docker Container to Build PyTorch Wheel
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/dist:/wheelhouse \
+            my-pytorch-builder:latest
+
+      # 5) Upload the wheel(s) from the dist/ folder as an artifact named "pytorch-wheel".
+      - name: Upload PyTorch Wheel
         uses: actions/upload-artifact@v4
         with:
           name: pytorch-wheel
-          path: dist/*.whl
+          path: dist
