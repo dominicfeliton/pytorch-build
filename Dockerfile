@@ -88,20 +88,27 @@ RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
     git submodule sync && \
     git submodule update --init --recursive
 
-# 9) Build PyTorch from source inside the container
-#    We set environment variables to ensure it detects and uses CUDA + cuDNN.
+RUN conda install -y -c pytorch magma-cuda121  \
+    && pip install -r /opt/pytorch/requirements.txt \
+    && pip install mkl-static mkl-include
+
+# Optional: If you want to use new C++ ABI (often recommended these days),
+# you can set this environment variable:
+ENV _GLIBCXX_USE_CXX11_ABI=1
+
+# Also set CMAKE_PREFIX_PATH to help PyTorch’s CMake find the Conda environment:
+ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
+
+# 9) Build PyTorch from source, referencing the official instructions
 WORKDIR /opt/pytorch
-ENV USE_CUDA=1
-ENV USE_CUDNN=1
-# Not setting CAFFE2_STATIC_LINK_CUDA=1, so cuDNN is dynamically linked.
 
-# Clean any prior build artifacts, then build the wheel
-RUN python setup.py clean && \
-    python setup.py bdist_wheel
+# (a) Clean any prior build artifacts
+RUN python setup.py clean
 
-# 10) Our final .whl is in dist/*.whl. We'll copy it somewhere for convenience.
-#     We'll create /wheelhouse and copy the wheel there. Then, when you run
-#     "docker run -v $(pwd)/output:/wheelhouse ..." you can retrieve it.
+# (b) Actually build the wheel
+RUN python setup.py bdist_wheel
+
+# 10) Copy the .whl into /wheelhouse so it can be mounted out
 RUN mkdir -p /wheelhouse && cp dist/*.whl /wheelhouse
 
 # 11) Provide a default command or simply exit
