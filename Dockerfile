@@ -54,13 +54,13 @@ RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
     wget -q "${CUDNN_URL}" -O "/tmp/${CUDNN_FILE}" && \
     tar -xf "/tmp/${CUDNN_FILE}" -C /tmp && \
     mkdir -p /usr/local/cuda/include/ && \
-    mkdir -p /usr/local/cuda/lib64/ && \
+    mkdir -p /usr/local/cuda/lib/ && \
     cp -P /tmp/${CUDNN_NAME}/include/* /usr/local/cuda/include/ && \
-    cp -P /tmp/${CUDNN_NAME}/lib64/* /usr/local/cuda/lib64/ && \
+    cp -P /tmp/${CUDNN_NAME}/lib/* /usr/local/cuda/lib/ && \
     rm -rf /tmp/${CUDNN_NAME} /tmp/${CUDNN_FILE}
 
 # 6) Ensure dynamic linker can find libraries
-ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install PyTorch build dependencies with conda
 #    (You can also do 'pip install' if you prefer.)
