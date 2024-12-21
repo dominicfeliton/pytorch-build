@@ -51,7 +51,7 @@ ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/
 
 RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
     wget -q "${CUDNN_URL}" -O "/tmp/${CUDNN_FILE}" && \
-    tar -xf "/tmp/${CUDNN_FILE}" -C /tmp && \
+    tar --one-top-level=/tmp/cuda -xf "/tmp/${CUDNN_FILE}" -C /tmp && \
     cp -P /tmp/cuda/include/* /usr/local/cuda/include/ && \
     cp -P /tmp/cuda/lib64/* /usr/local/cuda/lib64/ && \
     rm -rf /tmp/cuda /tmp/${CUDNN_FILE}
@@ -62,7 +62,7 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
 # 7) Install PyTorch build dependencies with conda
 #    (You can also do 'pip install' if you prefer.)
 RUN conda install -y \
-       python=3.9 \
+       python=3.11 \
        numpy \
        ninja \
        pyyaml \
