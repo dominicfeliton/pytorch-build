@@ -100,7 +100,7 @@ ENV _GLIBCXX_USE_CXX11_ABI=1
 ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
 
 # https://github.com/pytorch/pytorch/issues/113948
-export TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
+ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 
 # 9) Build PyTorch from source, referencing the official instructions
 WORKDIR /opt/pytorch
