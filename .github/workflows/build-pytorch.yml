@@ -10,7 +10,7 @@ jobs:
   build-pytorch:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up dependencies
         run: sudo apt-get update && sudo apt-get install -y wget git ninja-build
@@ -24,7 +24,7 @@ jobs:
             --pytorch-version "v2.3.1"
         
       - name: Upload wheel artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: pytorch-wheel
           path: dist/*.whl
