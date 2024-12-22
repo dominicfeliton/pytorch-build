@@ -56,6 +56,10 @@ RUN apt-get update && \
         && \
     rm -rf /var/lib/apt/lists/*
 
+# Fix libpthread (pyaudio dependency)
+RUN cp /lib/x86_64-linux-gnu/libpthread.so.0 /lib64/
+RUN cp /lib/x86_64-linux-gnu/libpthread.a /usr/lib64/libpthread_nonshared.a
+
 # 4) Download and install Miniconda
 ENV CONDA_DIR=/opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
@@ -74,7 +78,7 @@ RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
     rm -rf /tmp/${CUDNN_NAME} /tmp/${CUDNN_FILE}
 
 # 6) Ensure dynamic linker can find these libraries
-ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install conda packages needed for building
 RUN conda install -c conda-forge -y \
@@ -92,7 +96,9 @@ RUN conda install -c conda-forge -y \
        dataclasses \
        libstdcxx-ng \
        gcc=12 \
-       gxx_linux-64 \
+       cxx_linux-64 \
+       glib \
+       pthread-stubs \
        && \
     conda clean -ya
 
