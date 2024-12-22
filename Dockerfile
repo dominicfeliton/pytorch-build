@@ -126,6 +126,9 @@ RUN python setup.py bdist_wheel
 # 12) Copy the PyTorch wheel into /wheelhouse
 RUN mkdir -p /wheelhouse && cp dist/*.whl /wheelhouse
 
+# Install torch
+pip install /wheelhouse/*.whl
+
 # 13) Clone TorchVision from GitHub and build from source
 #     Adjust the version tag/branch as desired
 RUN git clone https://github.com/pytorch/vision /opt/vision && \
