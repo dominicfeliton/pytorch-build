@@ -28,9 +28,10 @@ ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/
 ENV USE_CUDA=1                 
 ENV USE_CUDNN=1                  
 ENV USE_MKLDNN=1
-# Fix telemetry CMAKE error (could not identify license file for XYZ)
-ENV USE_KINETO=0
-ENV USE_OPENTELEMETRY=OFF
+ENV USE_MAGMA=ON 
+ENV USE_DISTRIBUTED=ON 
+ENV USE_MPI=ON 
+ENV USE_SYSTEM_NCCL=ON 
 
 # For building TorchVision with GPU support:
 ENV FORCE_CUDA=1
@@ -115,6 +116,8 @@ ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 # 11) Build PyTorch from source
 ENV MAX_JOBS=10
 WORKDIR /opt/pytorch
+RUN mkdir -p third_party/opentelemetry-cpp/tools/vcpkg/ports/gettimeofday && \
+    echo "Provided under BSD-3-Clause (placeholder)" > third_party/opentelemetry-cpp/tools/vcpkg/ports/gettimeofday/LICENSE
 RUN python setup.py clean
 RUN python setup.py bdist_wheel
 
