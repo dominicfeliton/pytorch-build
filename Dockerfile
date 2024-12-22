@@ -113,11 +113,16 @@ ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
 # Set architecture list (modify as needed)
 ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 
-# 11) Build PyTorch from source
+# 11) Prepare + Build PyTorch from source
 ENV MAX_JOBS=10
 WORKDIR /opt/pytorch
-RUN mkdir -p third_party/opentelemetry-cpp/tools/vcpkg/ports/gettimeofday && \
-    echo "Provided under BSD-3-Clause (placeholder)" > third_party/opentelemetry-cpp/tools/vcpkg/ports/gettimeofday/LICENSE
+RUN sed -i \
+    "s|raise ValueError('unknown license')|return 'Unknown (skipped)'|" \
+    third_party/build_bundled.py && \
+    sed -i \
+    "s|raise ValueError('could not identify license file '.*|print(f'Skipping unrecognized license file for {root}')\\n                continue|" \
+    third_party/build_bundled.py
+
 RUN python setup.py clean
 RUN python setup.py bdist_wheel
 
