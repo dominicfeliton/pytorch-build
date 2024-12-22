@@ -52,6 +52,7 @@ RUN apt-get update && \
         libjpeg-dev \
         sox \
         ffmpeg \
+        libpthread-stubs0-dev \
         && \
     rm -rf /var/lib/apt/lists/*
 
