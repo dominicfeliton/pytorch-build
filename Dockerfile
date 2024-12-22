@@ -28,7 +28,7 @@ ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/
 ENV USE_CUDA=1                 
 ENV USE_CUDNN=1                  
 ENV USE_MKLDNN=1
-# Fix telemetry error (we don't need it anyways)
+# Fix telemetry CMAKE error (could not identify license file for XYZ)
 ENV USE_KINETO=0
 ENV USE_OPENTELEMETRY=OFF
 
