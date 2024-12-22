@@ -76,7 +76,7 @@ RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install conda packages needed for building
-RUN conda install -y \
+RUN conda install -c conda-forge -y \
        python="${PYTHON_VERSION}" \
        numpy \
        ninja \
@@ -90,6 +90,7 @@ RUN conda install -y \
        requests \
        dataclasses \
        libstdcxx-ng \
+       gcc \
        && \
     conda clean -ya
 
