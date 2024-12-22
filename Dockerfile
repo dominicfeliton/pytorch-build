@@ -74,7 +74,7 @@ RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
     rm -rf /tmp/${CUDNN_NAME} /tmp/${CUDNN_FILE}
 
 # 6) Ensure dynamic linker can find these libraries
-ENV LD_LIBRARY_PATH=$CONDA_PREFIX/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=${CONDA_PREFIX}/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install conda packages needed for building
 RUN conda install -c conda-forge -y \
