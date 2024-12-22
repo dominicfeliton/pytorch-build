@@ -90,7 +90,8 @@ RUN conda install -c conda-forge -y \
        requests \
        dataclasses \
        libstdcxx-ng \
-       gcc \
+       gcc=12 \
+       gxx_linux-64 \
        && \
     conda clean -ya
 
