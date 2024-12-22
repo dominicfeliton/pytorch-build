@@ -99,6 +99,9 @@ RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
     git submodule sync && \
     git submodule update --init --recursive
 
+# Replace the build_bundled.py script with the fixed version
+COPY build_bundled_fixed.py /opt/pytorch/third_party/build_bundled.py
+
 # 9) Install additional dependencies (like magma for GPU ops) & PyTorch’s Python deps
 RUN conda install -y -c pytorch magma-cuda121  \
     && pip install -r /opt/pytorch/requirements.txt \
@@ -116,12 +119,6 @@ ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 # 11) Prepare + Build PyTorch from source
 ENV MAX_JOBS=10
 WORKDIR /opt/pytorch
-RUN sed -i \
-    "s|raise ValueError('unknown license')|return 'Unknown (skipped)'|" \
-    third_party/build_bundled.py && \
-    sed -i \
-    "s|raise ValueError('could not identify license file '.*|print(f'Skipping unrecognized license file for {root}')\\n                continue|" \
-    third_party/build_bundled.py
 
 RUN python setup.py clean
 RUN python setup.py bdist_wheel
