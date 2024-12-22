@@ -24,10 +24,13 @@ ARG CUDNN_NAME="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive"
 ARG CUDNN_FILE="${CUDNN_NAME}.tar.xz"
 ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/${CUDNN_FILE}"
 
-# For building PyTorch with CUDA/CUDNN:
+# For building PyTorch (with CUDA/CUDNN:)
 ENV USE_CUDA=1                 
 ENV USE_CUDNN=1                  
 ENV USE_MKLDNN=1
+# Fix telemetry error (we don't need it anyways)
+ENV USE_KINETO=0
+ENV USE_OPENTELEMETRY=OFF
 
 # For building TorchVision with GPU support:
 ENV FORCE_CUDA=1
@@ -110,6 +113,7 @@ ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
 ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 
 # 11) Build PyTorch from source
+ENV MAX_JOBS=10
 WORKDIR /opt/pytorch
 RUN python setup.py clean
 RUN python setup.py bdist_wheel
