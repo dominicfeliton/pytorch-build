@@ -89,6 +89,7 @@ RUN conda install -y \
        six \
        requests \
        dataclasses \
+       libstdcxx-ng \
        && \
     conda clean -ya
 
