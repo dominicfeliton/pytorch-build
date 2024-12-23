@@ -32,6 +32,7 @@ ENV USE_MAGMA=ON
 ENV USE_DISTRIBUTED=ON 
 ENV USE_MPI=ON 
 ENV USE_SYSTEM_NCCL=ON 
+ENV _GLIBCXX_USE_CXX11_ABI=0
 
 # For building TorchVision with GPU support:
 ENV FORCE_CUDA=1
@@ -101,7 +102,7 @@ RUN conda install -c conda-forge -y \
 # 8) Clone PyTorch and checkout
 RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
     cd /opt/pytorch && \
-    git checkout v"${TORCH_VERSION}" && \
+    git checkout v${TORCH_VERSION} && \
     git submodule sync && \
     git submodule update --init --recursive
 
@@ -112,9 +113,6 @@ COPY build_bundled_fixed.py /opt/pytorch/third_party/build_bundled.py
 RUN conda install -y -c pytorch magma-cuda121  \
     && pip install -r /opt/pytorch/requirements.txt \
     && pip install mkl-static mkl-include
-
-# 10) Optional: If you want to use new C++ ABI
-ENV _GLIBCXX_USE_CXX11_ABI=0
 
 # Also help PyTorch’s CMake find the Conda environment:
 ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
@@ -136,10 +134,10 @@ RUN mkdir -p /wheelhouse && cp dist/*.whl /wheelhouse
 RUN pip install /wheelhouse/*.whl
 
 # 13) Clone TorchVision from GitHub and build from source
-#     Adjust the version tag/branch as desired
+
 RUN git clone https://github.com/pytorch/vision /opt/vision && \
     cd /opt/vision && \
-    git checkout v"${TORCH_AUDIO_VERSION}" && \
+    git checkout v${TORCH_AUDIO_VERSION} && \
     git submodule update --init --recursive
 WORKDIR /opt/vision
 RUN python setup.py clean
@@ -147,10 +145,23 @@ RUN python setup.py bdist_wheel
 RUN cp dist/*.whl /wheelhouse
 
 # 14) Clone TorchAudio from GitHub and build from source
-#     Adjust the version tag/branch as desired
+# Fix build errors
+RUN mkdir -p /lib64 && \
+    for file in /lib/x86_64-linux-gnu/*; do \
+        ln -s "$file" "/lib64/$(basename "$file")"; \
+    done
+
+# Create symlinks for all files from /usr/lib/x86_64-linux-gnu to /usr/lib64
+RUN mkdir -p /usr/lib64 && \
+    for file in /usr/lib/x86_64-linux-gnu/*; do \
+        ln -s "$file" "/usr/lib64/$(basename "$file")"; \
+    done
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libpthread.a /usr/lib64/libpthread_nonshared.a
+
 RUN git clone https://github.com/pytorch/audio /opt/audio && \
     cd /opt/audio && \
-    git checkout v"${TORCH_VERSION}" && \
+    git checkout v${TORCH_VERSION} && \
     git submodule update --init --recursive
 WORKDIR /opt/audio
 RUN python setup.py clean
