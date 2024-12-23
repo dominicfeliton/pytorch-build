@@ -82,6 +82,7 @@ RUN echo "Downloading cuDNN from ${CUDNN_URL}" && \
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install conda packages needed for building
+# gcc must match apt's gcc! Check with conda list/dpkg -l if magma complains about symbols.
 RUN conda install -c conda-forge -y \
        python="${PYTHON_VERSION}" \
        numpy \
