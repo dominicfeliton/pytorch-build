@@ -149,9 +149,6 @@ COPY build_bundled_fixed.py /opt/pytorch/third_party/build_bundled.py
 RUN pip install -r /opt/pytorch/requirements.txt \
     && pip install mkl-static mkl-include
 
-# Also help PyTorch’s CMake find the Conda environment:
-ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
-
 # 11) Prepare + Build PyTorch from source
 ENV MAX_JOBS=10
 WORKDIR /opt/pytorch
@@ -188,4 +185,4 @@ RUN python setup.py bdist_wheel
 RUN cp dist/*.whl /wheelhouse
 
 # 15) Final command
-CMD echo "Build complete. The wheels are in /wheelhouse." && ls -l /wheelhouse
+CMD ["sh", "-c", "echo 'Build complete. The wheels are in /wheelhouse.' && ls -l /wheelhouse"]
