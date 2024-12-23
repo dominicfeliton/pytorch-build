@@ -35,8 +35,8 @@ ENV USE_SYSTEM_NCCL=ON
 ENV _GLIBCXX_USE_CXX11_ABI=0
 # Set architecture list (modify as needed)
 # https://en.wikipedia.org/wiki/CUDA#GPUs_supported
-ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 6.2 7.0 7.2 8.0 8.6 8.7 8.9 9.0"
-ENV GPU_TARGET="sm_60 sm_61 sm_62 sm_70 sm_72 sm_80 sm_86 sm_87 sm_89 sm_90"
+ENV TORCH_CUDA_ARCH_LIST="6.1 7.5 8.0 8.6 9.0"
+ENV GPU_TARGET="sm_61 sm_75 sm_80 sm_86 sm_90"
 
 # For building TorchVision with GPU support:
 ENV FORCE_CUDA=1
