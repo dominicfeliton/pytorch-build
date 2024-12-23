@@ -20,6 +20,7 @@ ARG PYTHON_VERSION=3.11
 ARG TORCH_VERSION=2.3.1
 ARG TORCH_AUDIO_VERSION=0.18.1
 ARG CUDNN_VERSION=8.9.7.29
+ARG GCC_VERSION=11.4.0
 ARG CUDNN_NAME="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive"
 ARG CUDNN_FILE="${CUDNN_NAME}.tar.xz"
 ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/${CUDNN_FILE}"
@@ -58,6 +59,8 @@ RUN apt-get update && \
         sox \
         ffmpeg \
         libpthread-stubs0-dev \
+	gcc=${GCC_VERSION}* \
+    	g++=${GCC_VERSION}* \
         && \
     rm -rf /var/lib/apt/lists/*
 
@@ -97,8 +100,8 @@ RUN conda install -c conda-forge -y \
        requests \
        dataclasses \
        libstdcxx-ng \
-       gcc=11.4.0 \
-       gxx_linux-64 \
+       gcc=${GCC_VERSION} \
+       gxx_linux-64=${GCC_VERSION} \
        glib \
        pthread-stubs \
        gfortran \
