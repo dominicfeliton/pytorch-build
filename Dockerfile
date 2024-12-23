@@ -21,6 +21,8 @@ ARG TORCH_VERSION=2.3.1
 ARG TORCH_AUDIO_VERSION=0.18.1
 ARG CUDNN_VERSION=8.9.7.29
 ARG GCC_VERSION=11.4.0
+ARG CUDA_STR=cuda121
+
 ARG GCC_MAJOR_VER=${GCC_VERSION%%.*}
 ARG CUDNN_NAME="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive"
 ARG CUDNN_FILE="${CUDNN_NAME}.tar.xz"
@@ -53,8 +55,6 @@ RUN apt-get update && \
         ca-certificates \
         libssl-dev \
         curl \
-        # The following are optional but often needed by TorchVision / TorchAudio
-        # especially for reading various image/audio formats:
         libpng-dev \
         libjpeg-dev \
         sox \
@@ -87,7 +87,7 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib:${LD_LIBRARY_PATH}
 
 # 7) Install conda packages needed for building
 # gcc must match apt's gcc! Check with conda list/dpkg -l if magma complains about symbols.
-RUN conda install -c conda-forge -y \
+RUN conda install -c conda-forge -c pytorch -y \
        python="${PYTHON_VERSION}" \
        numpy \
        ninja \
@@ -106,6 +106,7 @@ RUN conda install -c conda-forge -y \
        glib \
        pthread-stubs \
        gfortran \
+       magma-${CUDA_STR} \
        && \
     conda clean -ya
 
@@ -122,17 +123,17 @@ RUN mkdir -p /usr/lib64 && \
 RUN ln -s /usr/lib/x86_64-linux-gnu/libpthread.a /usr/lib64/libpthread_nonshared.a
 
 # Build MAGMA from source
-RUN git clone --depth 1 https://github.com/icl-utk-edu/magma.git /opt/magma && \
-    cd /opt/magma && \
-    echo "GPU_TARGET = ${GPU_TARGET}" > make.inc && \
-    echo "BACKEND = cuda" >> make.inc && \
-    echo "FORT = false" >> make.inc && \
-    make generate && \
-    cmake -DGPU_TARGET="${GPU_TARGET}" -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" -DCMAKE_INSTALL_PREFIX=build/target . -Bbuild && \
-    cmake --build build -j $(nproc) --target install && \
-    cp build/target/include/* ${CONDA_PREFIX}/include/ && \
-    cp build/target/lib/*.so ${CONDA_PREFIX}/lib/ && \
-    cp build/target/lib/pkgconfig/*.pc ${CONDA_PREFIX}/lib/pkgconfig/
+#RUN git clone --depth 1 https://github.com/icl-utk-edu/magma.git /opt/magma && \
+#    cd /opt/magma && \
+#    echo "GPU_TARGET = ${GPU_TARGET}" > make.inc && \
+#    echo "BACKEND = cuda" >> make.inc && \
+#    echo "FORT = false" >> make.inc && \
+#    make generate && \
+#    cmake -DGPU_TARGET="${GPU_TARGET}" -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" -DCMAKE_INSTALL_PREFIX=build/target . -Bbuild && \
+#    cmake --build build -j $(nproc) --target install && \
+#    cp build/target/include/* ${CONDA_PREFIX}/include/ && \
+#    cp build/target/lib/*.so ${CONDA_PREFIX}/lib/ && \
+#    cp build/target/lib/pkgconfig/*.pc ${CONDA_PREFIX}/lib/pkgconfig/
 
 # 8) Clone PyTorch and checkout
 RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
