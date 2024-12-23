@@ -113,9 +113,9 @@ RUN git clone --depth 1 https://github.com/icl-utk-edu/magma.git /opt/magma && \
     make generate && \
     cmake -DGPU_TARGET="${GPU_TARGET}" -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" -DCMAKE_INSTALL_PREFIX=build/target . -Bbuild && \
     cmake --build build -j $(nproc) --target install && \
-    cp build/target/include/* /usr/local/include/ && \
-    cp build/target/lib/*.so /usr/local/lib/ && \
-    cp build/target/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/
+    cp build/target/include/* ${CONDA_PREFIX}/include/ && \
+    cp build/target/lib/*.so ${CONDA_PREFIX}/lib/ && \
+    cp build/target/lib/pkgconfig/*.pc ${CONDA_PREFIX}/lib/pkgconfig/
 
 # 8) Clone PyTorch and checkout
 RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
