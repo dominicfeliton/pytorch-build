@@ -96,7 +96,7 @@ RUN conda install -c conda-forge -y \
        requests \
        dataclasses \
        libstdcxx-ng \
-       gcc=12 \
+       gcc=11.4.0 \
        gxx_linux-64 \
        glib \
        pthread-stubs \
