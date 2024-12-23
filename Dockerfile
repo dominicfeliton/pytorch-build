@@ -33,6 +33,10 @@ ENV USE_DISTRIBUTED=ON
 ENV USE_MPI=ON 
 ENV USE_SYSTEM_NCCL=ON 
 ENV _GLIBCXX_USE_CXX11_ABI=0
+# Set architecture list (modify as needed)
+# https://en.wikipedia.org/wiki/CUDA#GPUs_supported
+ENV TORCH_CUDA_ARCH_LIST="6.0 6.1 6.2 7.0 7.1 7.2 8.0 8.6 8.7 8.9 9.0"
+ENV GPU_TARGET="sm_60 sm_61 sm_62 sm_70 sm_71 sm_72 sm_80 sm_86 sm_87 sm_89 sm_90"
 
 # For building TorchVision with GPU support:
 ENV FORCE_CUDA=1
@@ -99,6 +103,17 @@ RUN conda install -c conda-forge -y \
        && \
     conda clean -ya
 
+# Build MAGMA from source
+RUN git clone --depth 1 https://github.com/icl-utk-edu/magma.git /opt/magma && \
+    cd /opt/magma && \
+    echo -e "GPU_TARGET = ${GPU_TARGET}\nBACKEND = cuda\nFORT = false" > make.inc && \
+    make generate && \
+    cmake -DGPU_TARGET="${GPU_TARGET}" -DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc" -DCMAKE_INSTALL_PREFIX=build/target . -Bbuild && \
+    cmake --build build -j $(nproc) --target install && \
+    cp build/target/include/* /usr/local/include/ && \
+    cp build/target/lib/*.so /usr/local/lib/ && \
+    cp build/target/lib/pkgconfig/*.pc /usr/local/lib/pkgconfig/
+
 # 8) Clone PyTorch and checkout
 RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
     cd /opt/pytorch && \
@@ -110,15 +125,11 @@ RUN git clone --recursive https://github.com/pytorch/pytorch /opt/pytorch && \
 COPY build_bundled_fixed.py /opt/pytorch/third_party/build_bundled.py
 
 # 9) Install additional dependencies (like magma for GPU ops) & PyTorch’s Python deps
-RUN conda install -y -c pytorch magma-cuda121  \
-    && pip install -r /opt/pytorch/requirements.txt \
+RUN pip install -r /opt/pytorch/requirements.txt \
     && pip install mkl-static mkl-include
 
 # Also help PyTorch’s CMake find the Conda environment:
 ENV CMAKE_PREFIX_PATH="${CONDA_PREFIX:-'/opt/conda'}:${CMAKE_PREFIX_PATH}"
-
-# Set architecture list (modify as needed)
-ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 8.9 9.0"
 
 # 11) Prepare + Build PyTorch from source
 ENV MAX_JOBS=10
