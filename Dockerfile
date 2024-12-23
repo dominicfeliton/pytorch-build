@@ -21,6 +21,7 @@ ARG TORCH_VERSION=2.3.1
 ARG TORCH_AUDIO_VERSION=0.18.1
 ARG CUDNN_VERSION=8.9.7.29
 ARG GCC_VERSION=11.4.0
+ARG GCC_MAJOR_VER=${GCC_VERSION%%.*}
 ARG CUDNN_NAME="cudnn-linux-x86_64-${CUDNN_VERSION}_cuda12-archive"
 ARG CUDNN_FILE="${CUDNN_NAME}.tar.xz"
 ARG CUDNN_URL="https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/${CUDNN_FILE}"
@@ -59,8 +60,8 @@ RUN apt-get update && \
         sox \
         ffmpeg \
         libpthread-stubs0-dev \
-	gcc=${GCC_VERSION}* \
-    	g++=${GCC_VERSION}* \
+	gcc-${GCC_MAJOR_VER}=${GCC_VERSION}-* \
+        g++-${GCC_MAJOR_VER}=${GCC_VERSION}-* \
         && \
     rm -rf /var/lib/apt/lists/*
 
