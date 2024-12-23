@@ -104,6 +104,18 @@ RUN conda install -c conda-forge -y \
        && \
     conda clean -ya
 
+# Fix build errors
+RUN mkdir -p /lib64 && \
+    for file in /lib/x86_64-linux-gnu/*; do \
+        ln -s "$file" "/lib64/$(basename "$file")"; \
+    done
+# Create symlinks for all files from /usr/lib/x86_64-linux-gnu to /usr/lib64
+RUN mkdir -p /usr/lib64 && \
+    for file in /usr/lib/x86_64-linux-gnu/*; do \
+        ln -s "$file" "/usr/lib64/$(basename "$file")"; \
+    done
+RUN ln -s /usr/lib/x86_64-linux-gnu/libpthread.a /usr/lib64/libpthread_nonshared.a
+
 # Build MAGMA from source
 RUN git clone --depth 1 https://github.com/icl-utk-edu/magma.git /opt/magma && \
     cd /opt/magma && \
@@ -159,19 +171,6 @@ RUN python setup.py bdist_wheel
 RUN cp dist/*.whl /wheelhouse
 
 # 14) Clone TorchAudio from GitHub and build from source
-# Fix build errors
-RUN mkdir -p /lib64 && \
-    for file in /lib/x86_64-linux-gnu/*; do \
-        ln -s "$file" "/lib64/$(basename "$file")"; \
-    done
-
-# Create symlinks for all files from /usr/lib/x86_64-linux-gnu to /usr/lib64
-RUN mkdir -p /usr/lib64 && \
-    for file in /usr/lib/x86_64-linux-gnu/*; do \
-        ln -s "$file" "/usr/lib64/$(basename "$file")"; \
-    done
-
-RUN ln -s /usr/lib/x86_64-linux-gnu/libpthread.a /usr/lib64/libpthread_nonshared.a
 
 RUN git clone https://github.com/pytorch/audio /opt/audio && \
     cd /opt/audio && \
